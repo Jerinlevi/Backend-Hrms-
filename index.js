@@ -88,7 +88,7 @@ if(!geting){
  const hashing=await bcrypt.hash(password,10)
  const inserting=`Insert Into users(name,email,password_hash,organistation_id) Values(?,?,?,?)`
  await db.run(inserting,[name,email,hashing,geting.id])
- res.status(200).send("Registration SuccessFull")
+ res.status(200).json({message:"Registration SuccessFull"})
  
 }catch(e){
     res.status(500).send(`Error in registering ${e}`)
@@ -104,7 +104,7 @@ app.post('/login',async(req,res)=>{
     const password_new=await bcrypt.compare(password,query.password_hash)
     if(!password_new) return res.status(400).send("Invalid Email or Password")
     const jsontoken=token.sign({userId:query.id,orgId:query.organistation_id},"My_Secret")
-    res.status(200).send({message:"Login Successfull",token:jsontoken})
+    res.status(200).json({message:"Login Successfull",token:jsontoken})
     }catch(e){
         res.status(500).send(`Error in Login ${e}`)
     }
@@ -132,7 +132,7 @@ const authentication=async(req,res,next)=>{
 app.get('/employees',authentication,async(req,res)=>{
     try{
     const query=await db.all(`Select * from employees`)
-    res.status(200).send(query)
+    res.status(200).json(query)
    
 }catch(e){
     res.status(400).send(`Can't fetch : ${e}`)
@@ -142,7 +142,7 @@ app.get('/employees',authentication,async(req,res)=>{
 app.get('/teams',authentication,async(req,res)=>{
     try{
     const query=await db.all(`Select * from teams where organistation_id=?;`, [req.orgId])
-    res.status(200).send(query)
+    res.status(200).json(query)
    
 }catch(e){
     res.status(400).send(`Can't fetch : ${e}`)
@@ -318,7 +318,7 @@ app.get('/employee-team',authentication,async(req,res)=>{
     join employees e on et.employee_id = e.id
     join teams t on et.team_id = t.id
     where et.organistation_id=?;`, [req.orgId])
-    res.status(200).send(query)
+    res.status(200).json(query)
     }catch(e){
         res.status(400).send(`Can't fetch : ${e}`)
     }
